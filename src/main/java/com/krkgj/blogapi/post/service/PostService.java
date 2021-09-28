@@ -10,6 +10,8 @@ import com.krkgj.blogapi.post.repository.PostRepository;
 
 import lombok.RequiredArgsConstructor;
 
+
+// @RequiredArgsConstructor => 초기화가 되지 않은 fianl, @NonNull로 마크되어있는 모든 필드의 생성자를 생성.
 @Service("com.krkgj.blogapi.post.service.PostService")
 @RequiredArgsConstructor
 public class PostService 

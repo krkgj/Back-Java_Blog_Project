@@ -33,6 +33,8 @@ public class PostController
 		return new ResponseEntity<List<PostDTO>>(list, HttpStatus.OK);
 	}
 	
+	
+	// 파라메터에 @RequestBody로 데이터를 인자인 post에 할당한다.
 	@PostMapping(value = "/registpost")
 	public ResponseEntity<PostDTO> getAllPostList(@RequestBody PostDTO post) 
 	{
