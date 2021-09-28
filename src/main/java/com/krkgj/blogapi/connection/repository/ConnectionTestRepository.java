@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.krkgj.blogapi.connection.dto.ConnectionTestDTO;
 
 @Repository
-public interface ConnectionTestRepository extends JpaRepository<ConnectionTestDTO, Integer>
+public interface ConnectionTestRepository extends JpaRepository<ConnectionTestDTO, Long>
 {
-	public List<ConnectionTestDTO> findBySeq(Integer seq);
+	public List<ConnectionTestDTO> findBySeq(Long seq);
 }

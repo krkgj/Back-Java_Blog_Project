@@ -1,4 +1,4 @@
-package com.krkgj.blogapi.connection.dto;
+package com.krkgj.blogapi.post.dto;
 
 import java.time.LocalDateTime;
 
@@ -9,13 +9,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import lombok.Data;
-
-@Data
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name="post_list")
-public class ConnectionTestDTO 
+public class PostDTO 
 {
 	
 	//	IDENTITY : 데이터베이스에 위임(MYSQL)
@@ -30,30 +29,28 @@ public class ConnectionTestDTO
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long seq;
 
+	@Getter
+	@Setter
 	@Column(name="title")
 	private String title;
 	
+	@Getter
+	@Setter
 	@Column(name="category")
 	private Integer category;
 	
+	@Getter
+	@Setter
 	@Column(name="createtime")
 	private LocalDateTime createtime;
 	
+	@Getter
+	@Setter
 	@Column(name="tags")
 	private String tags;
 	
+	@Getter
+	@Setter
 	@Column(name="content")
 	private String content;
-	
-	public ConnectionTestDTO() {}
-	
-	public ConnectionTestDTO(Long seq, String title, Integer category, LocalDateTime createtime, String tags, String content)
-	{
-		this.seq = seq;
-		this.title = title;
-		this.category = category;
-		this.createtime = createtime;
-		this.tags = tags;
-		this.content = content;
-	}
 }
