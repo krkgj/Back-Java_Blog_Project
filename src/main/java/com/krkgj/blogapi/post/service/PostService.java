@@ -3,7 +3,6 @@ package com.krkgj.blogapi.post.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.krkgj.blogapi.post.dto.PostDTO;
