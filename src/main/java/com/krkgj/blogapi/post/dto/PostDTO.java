@@ -32,6 +32,9 @@ public class PostDTO
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Getter
+	@Setter
+	@Column(name="seq", nullable=true)
 	private Long seq;
 
 	// @Getter => 게터를 생성

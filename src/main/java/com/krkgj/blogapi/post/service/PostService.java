@@ -3,10 +3,12 @@ package com.krkgj.blogapi.post.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.krkgj.blogapi.post.dto.PostDTO;
 import com.krkgj.blogapi.post.repository.PostRepository;
+import com.krkgj.blogapi.utility.Utility;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +24,25 @@ public class PostService
 	{
 		List<PostDTO> list = new ArrayList<>();
 		postRepository.findAll().forEach(dto -> list.add(dto));
+		
+		return list;
+	}
+	
+	public List<PostDTO> getAllPostListOrderByAsc(String sortBy) 
+	{
+		List<PostDTO> list = new ArrayList<PostDTO>();
+		
+		postRepository.findAll(Utility.getSortOrderByAsc(sortBy)).forEach(dto -> list.add(dto));
+		
+		return list;
+	}
+	
+	
+	public List<PostDTO> getAllPostListOrderByDesc(String sortBy) 
+	{
+		List<PostDTO> list = new ArrayList<PostDTO>();
+		
+		postRepository.findAll(Utility.getSortOrderByDesc(sortBy)).forEach(dto -> list.add(dto));
 		
 		return list;
 	}
