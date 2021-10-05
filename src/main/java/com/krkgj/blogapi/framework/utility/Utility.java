@@ -1,18 +1,10 @@
-package com.krkgj.blogapi.utility;
+package com.krkgj.blogapi.framework.utility;
 
 import org.springframework.data.domain.Sort;
 
 public class Utility 
 {
-	public static Sort getSortOrderByAsc(String str)
-	{
-		return Sort.by(Sort.Direction.ASC, str);
-	}
 
-	public static Sort getSortOrderByDesc(String str)
-	{
-		return Sort.by(Sort.Direction.DESC, str);
-	}
 	
     public static boolean isNull(String str)
     {

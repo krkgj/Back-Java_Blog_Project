@@ -1,4 +1,4 @@
-package com.krkgj.blogapi.post.controller;
+package com.krkgj.blogapi.api.post.controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.krkgj.blogapi.post.dto.PostDTO;
-import com.krkgj.blogapi.post.service.PostService;
-import com.krkgj.blogapi.utility.Utility;
+import com.krkgj.blogapi.api.post.dto.PostDTO;
+import com.krkgj.blogapi.api.post.service.PostService;
+import com.krkgj.blogapi.framework.utility.Utility;
 
 @RestController
 @RequestMapping("/api/post")
@@ -29,7 +29,7 @@ public class PostController
 	private static final Logger logger = LoggerFactory.getLogger(PostController.class);
 
 	
-	@Resource(name="com.krkgj.blogapi.post.service.PostService")
+	@Resource(name="com.krkgj.blogapi.api.post.service.PostService")
 	PostService postService;
 
 	// @RequestParam은 URL의 ? 뒤에 전송되는 키를 value에 받는다. required=false로 필수값 설정을 해제(DEFAULT는 true)
@@ -37,6 +37,7 @@ public class PostController
 	public ResponseEntity<List<PostDTO>> getAllPostList( @RequestParam(value = "sort-direction", required=false) String sortingDirection,
 															@RequestParam(value = "sort-by", required=false) String sortBy) 
 	{
+		logger.info("Request \"/get-post-list\".........");
 		logger.info("sortingDirection => " + sortingDirection);
 		logger.info("sortBy => " + sortBy);
 		
@@ -58,6 +59,9 @@ public class PostController
 			{
 				list = postService.getAllPostListOrderByDesc(sortBy);
 			}
+		}
+		for (PostDTO postDTO : list) {
+			System.out.println(postDTO.getSeq());
 		}
 
 		return new ResponseEntity<List<PostDTO>>(list, HttpStatus.OK);
