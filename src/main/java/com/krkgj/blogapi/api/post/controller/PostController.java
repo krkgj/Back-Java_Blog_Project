@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -22,7 +24,7 @@ import com.krkgj.blogapi.api.post.service.PostService;
 import com.krkgj.blogapi.framework.utility.Utility;
 
 @RestController
-@RequestMapping("/api/post")
+@RequestMapping("/api")
 public class PostController 
 {
 	
@@ -33,7 +35,7 @@ public class PostController
 	PostService postService;
 
 	// @RequestParam은 URL의 ? 뒤에 전송되는 키를 value에 받는다. required=false로 필수값 설정을 해제(DEFAULT는 true)
-	@GetMapping(value="/get-post-list", produces = {MediaType.APPLICATION_JSON_VALUE })
+	@GetMapping(value="/post", produces = {MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<List<PostDTO>> getAllPostList( @RequestParam(value = "sort-direction", required=false) String sortingDirection,
 															@RequestParam(value = "sort-by", required=false) String sortBy) 
 	{
@@ -58,25 +60,25 @@ public class PostController
 			else if(sortingDirection.equals("desc"))
 			{
 				list = postService.getAllPostListOrderByDesc(sortBy);
+				for (PostDTO postDTO : list) {
+					System.out.println("controller > " +postDTO.getCreatetime());
+				}
 			}
 		}
-		for (PostDTO postDTO : list) {
-			System.out.println(postDTO.getSeq());
-		}
-
 		return new ResponseEntity<List<PostDTO>>(list, HttpStatus.OK);
 	}
 	
 	
 	// 파라메터에 @RequestBody로 데이터를 인자인 post에 할당한다.
-	@PostMapping(value = "/registpost")
-	public ResponseEntity<PostDTO> getAllPostList(@RequestBody PostDTO post) 
+	@PostMapping(value = "/post" ,produces = {MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<PostDTO> getAllPostList(@RequestBody PostDTO postDto, HttpServletRequest request) 
 	{
-		post.setCreatetime(LocalDateTime.now());
+		postDto.setCreatetime(LocalDateTime.now());
+		System.out.println(postDto);
+		System.out.println(request);
 		
+		PostDTO registedPost = postService.registPost(postDto);
 		
-		PostDTO registedPost = postService.registPost(post);
-
 		return new ResponseEntity<PostDTO>(registedPost, HttpStatus.OK);
 	}
 	

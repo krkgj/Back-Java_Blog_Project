@@ -1,5 +1,6 @@
 package com.krkgj.blogapi.api.post.service;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,9 +53,8 @@ public class PostService
 		List<PostDTO> list = new ArrayList<PostDTO>();
 		
 		postRepository.findAll(getSortOrderByDesc(sortBy)).forEach(entity -> {
-			System.out.println("entity > " + entity.getSeq());
 			PostDTO postDto = PostDTO.builder(entity).build();
-			System.out.println("postDTO > " + postDto.getSeq());
+			System.out.println(postDto.getCreatetime());
 			list.add(postDto);
 		});
 		
@@ -64,6 +64,12 @@ public class PostService
 	public PostDTO registPost(PostDTO post)
 	{
 		PostEntity postEntity = PostEntity.builder(post).build();
+
+		System.out.println("svc regist > " + postEntity.getTitle());
+		System.out.println("svc regist > " + postEntity.getTags());
+		System.out.println("svc regist > " + postEntity.getContent());
+		System.out.println("svc regist > " + postEntity.getCategory());
+		
 		postRepository.save(postEntity);
 		
 		return post;

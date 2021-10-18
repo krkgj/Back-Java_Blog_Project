@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.krkgj.blogapi.api.post.dto.PostDTO;
 
 import lombok.AccessLevel;
@@ -70,6 +71,7 @@ public class PostEntity
 	@Getter
 	@Setter
 	@Column(name="createtime", nullable=false)
+	@JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss", timezone="Asia/Seoul")
 	private LocalDateTime createtime;
 	
 	@Getter

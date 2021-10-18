@@ -2,6 +2,7 @@ package com.krkgj.blogapi.api.post.dto;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.krkgj.blogapi.api.post.entity.PostEntity;
 
 import lombok.AccessLevel;
@@ -18,8 +19,11 @@ public class PostDTO
 {
 	private Long 			seq;
 	private String 			title;	
-	private Integer 		category;	
+	private Integer 		category;
+	
+	@JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss", timezone="Asia/Seoul")
 	private LocalDateTime 	createtime;	
+	
 	private String 			tags;	
 	private String 			content;
 	
