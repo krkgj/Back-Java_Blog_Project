@@ -13,8 +13,8 @@ public class Utility
     {
         if (str == null || "".equals(str) || str.trim().length() == 0 || str.equals("null"))
             return true;
-        else
-            return false;
+        
+        return false;
     }
     
     public static boolean isNotNull(String str)
@@ -29,8 +29,7 @@ public class Utility
 
         if (str == null)
             return null;
-
-        System.out.println("str > " + str);
+        
         str = str.replaceAll("\\", "");
 
         try

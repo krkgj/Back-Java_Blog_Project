@@ -1,7 +1,6 @@
-package com.krkgj.blogapi.api.user.entity;
+package com.krkgj.blogapi.api.token.entity;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import javax.annotation.Nullable;
 import javax.persistence.Column;
@@ -20,44 +19,34 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 @Entity
-@Table(name = "users")
+@Table(name = "users_token")
 @Builder
 @Nullable
-public class UserEntity implements Serializable
+public class TokenEntity 
 {
-    /**
-	 * serialVersionUID
-	 */
-	private static final long serialVersionUID = 1L;
-
-	@Id
+    @Id
     @Column(name = "seq")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long seq;
-
-    /**
-     * 유저 아이디
-     */
-    @Column(name = "id")
-    private String id;
+    
+    @Column(name = "seq_users")
+    private Long seqUsers;
     
     /**
-     * 유저 이름
+     * 엑세스 토큰 값
      */
-    @Column(name = "name")
-    private String name;
-
-    /**
-     * 유저 패스워드
-     */
-    @Column(name = "password")
-    private String password;
-
-    /**
-     * 유저 권한
-     */
-    @Column(name = "roles")
-    private String roles;
+    @Column(name = "access_token")
+    private String accessToken;
     
-
+    /**
+     * 리프레쉬 토큰 값
+     */
+    @Column(name = "refresh_token")
+    private String refreshToken;
+  
+    /**
+     * 토큰 등록 시간
+     */
+    @Column(name = "date_created")
+    private LocalDateTime dateCreated;
 }
