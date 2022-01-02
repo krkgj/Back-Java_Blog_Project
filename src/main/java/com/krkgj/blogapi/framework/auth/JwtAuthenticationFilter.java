@@ -1,4 +1,5 @@
 package com.krkgj.blogapi.framework.auth;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,46 +13,34 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.krkgj.blogapi.api.user.bean.UserBean;
-import com.krkgj.blogapi.api.user.dto.UserDto;
-import com.krkgj.blogapi.framework.utility.Utility;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter
-{ 
-
+{
 	private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
-	
+
+    public static final String AUTHORIZATION_HEADER 	= "Authorization";
+    public static final String BEARER_PREFIX 			= "Bearer ";
+    
 	private final JwtAuthenticationProvider 			jwtProvider; 
-	private final JwtAuthenticationUserDetailService 	userDetailsService;
-	
-	
-	@Autowired
-	private UserBean userBean;
 	
 	/**
 	 * Filter에서 제외할 경로, 지금은 Login을 요청하는 경로이다.
 	 */
 	private static final List<String> EXCLUDE_URL = Collections.unmodifiableList(
                     Arrays.asList(
-                        "/jwt/token"
+                        "/user/auth/**"
                     ));
-	
-	private void setAuthentication(UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) 
-	{
-		SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-	}
 	
 	/**
 	 *  엑세스토큰의 주기를 초단위로 설정하고, 사용자가 액세스토큰으로 요청할 때마다
@@ -61,101 +50,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
 			throws IOException, ServletException 
 	{ 
 		logger.info("=============================================================== Security Filter ===============================================================");
-
 		logger.info("client IP : " + request.getRemoteAddr());
-		String 			authorizationHeader 		= request.getHeader("Authorization");
+		
+        // 1. Request Header 에서 토큰을 꺼냄
+        String jwt = resolveToken(request);
 
-		// AccessToken
-		String 			token						= null;
-		String 			username					= null;
-		
-		// RefreshToken
-		String 			refreshToken				= null;
-		String 			refreshUsername				= null;
-		
-		Long			userSeq						= null;
-		try 
-		{
-			// header에 Bearer + accessToken이 존재하면, accessToken만 추출하여 token 변수에 할당한다.
-			if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) 
-			{
-				token = authorizationHeader.substring(7);
-				username = jwtProvider.extractUsername(token);
-				logger.info("get Token info : " + token);
-			}
-			else
-			{
-				logger.info("				Authorization Token is empty.");
-			}
-			
-			if (SecurityContextHolder.getContext().getAuthentication() == null) 
-			{
-				if(username != null) 
-				{
-					UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-					
-//					userSeq = userBean.getSeq();
-					
-					if(jwtProvider.validateToken(token))
-					{	
-						UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken 
-												= jwtProvider.getAuthentication(userDetails);
-
-						usernamePasswordAuthenticationToken
-									.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-						
-						this.setAuthentication(usernamePasswordAuthenticationToken);
-					}
-				}
-			}
-		} 
-		catch (ExpiredJwtException e) 
-		{
-			logger.error("			AccessToken is Expired : " + e.getMessage());
-		
-				refreshToken = userDetailsService.findRefreshToken(token);
-				
-				if(refreshToken == null) logger.error("			Not Found AccessToken in Database ");
-		}
-		catch (Exception e)
-		{
-			
-		}
-        
-        try
+        // 2. validateToken 으로 토큰 유효성 검사
+        // 정상 토큰이면 해당 토큰으로 Authentication 을 가져와서 SecurityContext 에 저장
+        if (StringUtils.hasText(jwt) && jwtProvider.validateToken(jwt)) 
         {
-        	if(Utility.isNotNull(refreshToken))
-        	{
-    			refreshUsername = jwtProvider.extractUsername(refreshToken);
-    			
-				UserDetails userDetails = userDetailsService.loadUserByUsername(refreshUsername);
-
-				userSeq = userBean.getSeq();
-				
-				if(jwtProvider.validateToken(refreshToken))
-				{
-					UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken 
-											= jwtProvider.getAuthentication(userDetails);
-
-					usernamePasswordAuthenticationToken
-								.setDetails( new WebAuthenticationDetailsSource().buildDetails(request) );
-					
-					this.setAuthentication(usernamePasswordAuthenticationToken);
-					
-					token = jwtProvider.generateAccessToken(refreshUsername);
-					
-					
-					userDetailsService.updateAccessToken(token, refreshToken, userSeq);
-					
-				    response.addCookie( jwtProvider.generateCookie(token) );
-				}
-        	}
+            Authentication authentication = jwtProvider.getAuthentication(jwt);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-        catch (ExpiredJwtException e)
-        {
-			logger.error("			RefreshToken is Expired : " + e.getMessage());
-        }
-		filterChain.doFilter(request, response);
+
+        filterChain.doFilter(request, response);
 		logger.info("===============================================================================================================================================");
 	} 
 
@@ -165,17 +73,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
 		return EXCLUDE_URL.stream().anyMatch(url -> request.getServletPath().startsWith(url));
 	}
 	
-	
-
-	
-	
-//	private String getToken(HttpServletRequest request)
-//	{ 
-//		String headerAuth = request.getHeader("Authorization"); 
-//		if (headerAuth != null && headerAuth.startsWith("Bearer ")) 
-//		{ 
-//			return headerAuth.substring(7, headerAuth.length()); 
-//		} 
-//		return null;
-//	} 
+    // Request Header 에서 토큰 정보를 꺼내오기
+    private String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
 }

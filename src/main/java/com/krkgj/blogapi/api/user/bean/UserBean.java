@@ -1,10 +1,10 @@
 package com.krkgj.blogapi.api.user.bean;
 
-import java.math.BigDecimal;
-
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
+
+import com.krkgj.blogapi.framework.auth.Authority;
 
 import lombok.Data;
 
@@ -36,6 +36,6 @@ public class UserBean
     /**
      * 유저 권한
      */
-    private String role;
+    private Authority role;
     
 }

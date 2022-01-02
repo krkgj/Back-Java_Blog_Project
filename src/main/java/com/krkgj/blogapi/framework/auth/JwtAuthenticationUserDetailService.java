@@ -1,30 +1,17 @@
 package com.krkgj.blogapi.framework.auth;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.krkgj.blogapi.api.token.dto.TokenDto;
-import com.krkgj.blogapi.api.token.entity.QTokenEntity;
-import com.krkgj.blogapi.api.token.entity.TokenEntity;
-import com.krkgj.blogapi.api.token.repository.TokenRepository;
 import com.krkgj.blogapi.api.user.bean.UserBean;
 import com.krkgj.blogapi.api.user.context.UserContext;
-import com.krkgj.blogapi.api.user.dto.UserDto;
-import com.krkgj.blogapi.api.user.entity.QUserEntity;
 import com.krkgj.blogapi.api.user.entity.UserEntity;
-import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.krkgj.blogapi.api.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,9 +19,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class JwtAuthenticationUserDetailService implements UserDetailsService
 {
-	private final TokenRepository 	tokenRepository;
-	private final PasswordEncoder	passwordEncoder;
-	private final JPAQueryFactory 	query;
+	private final UserRepository userRepository;
 	
 	@Autowired
 	private UserBean userBean;
@@ -46,104 +31,17 @@ public class JwtAuthenticationUserDetailService implements UserDetailsService
 	@Override
 	public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException
 	{
-		QUserEntity user = new QUserEntity("qUser");
-		
-		UserEntity userResult = query.select(user)
-				.from(user)
-				.where(user.id.eq(userId))
-				.fetchOne();
-		
-//		if(passwordEncoder.matches(, encodedPassword))
-		updateUserBean(userResult);
-		
+		// Optional로 싸인 userEntity를 추출, 새로운 User 객체 생성 후 리턴한다.
 
-		// 권한 등록?
-		List<GrantedAuthority> authorities = new ArrayList<>();
+		System.out.println("======================================a");
+		System.out.println(userId);
+		Optional<UserEntity> oUserEntity = userRepository.findById(userId);
 		
-		authorities.add(new SimpleGrantedAuthority(userResult.getRoles()));
+		updateUserBean(oUserEntity.get());
 		
-		UserContext userContext = new UserContext(userResult, authorities);
-		
-		return userContext;
-	}
-	
-	/**
-	 * @설명 유저 정보를 찾는다.
-	 * @return UserDetails
-	 */
-	public boolean findUserInfo(String userId, String password)
-	{
-		QUserEntity user = new QUserEntity("qUser");
-		
-		UserEntity userResult = query.select(user)
-				.from(user)
-				.where(user.id.eq(userId))
-				.fetchOne();
-		
-		if(passwordEncoder.matches(password, userResult.getPassword()))
-		{
-			return true;
-		}
-		return false;
-	}
-	
-	
-	
-	public Boolean findToken(String token)
-	{
-		QTokenEntity	qToken 		= new QTokenEntity("qToken");
-		Long 			count		= 0l;
-		
-		count = query.selectFrom(qToken)
-			.where(qToken.refreshToken.eq(token))
-			.fetchCount();
-		
-		return count > 0l ? true : false;
-	}
-	
-	public String findRefreshToken(String accessToken)
-	{
-		QTokenEntity qToken = new QTokenEntity("qToken");
-		
-		String refreshToken = query.select(qToken.refreshToken)
-			.from(qToken)
-			.where(qToken.accessToken.eq(accessToken))
-			.fetchOne();
-		
-		return refreshToken;
-	}
-	
-	/**
-	 * @설명 login_token 테이블에 생성된 토큰 정보 입력
-	 * @param tokenDto
-	 */
-	@Transactional
-	public void insertTokens(TokenDto tokenDto)
-	{
-		TokenEntity tokenEntity = TokenEntity.builder()
-				.seqUsers(userBean.getSeq())
-				.accessToken(tokenDto.getAccessToken())
-				.refreshToken(tokenDto.getRefreshToken())
-				.dateCreated(LocalDateTime.now())
-				.build();
-	
-		tokenRepository.save(tokenEntity);
-	}
-	
-	/**
-	 * accessToken을 update 한다.
-	 * @param accessToken, refreshToken, userSeq
-	 */
-	@Transactional
-	public void updateAccessToken(String accessToken, String refreshToken, long userSeq)
-	{
-		QTokenEntity qToken = new QTokenEntity("qToken");
-		
-		query.update(qToken)
-			.set(qToken.accessToken, accessToken)
-			.where(qToken.seqUsers.eq(userSeq))
-			.where(qToken.refreshToken.eq(refreshToken))
-			.execute();
+		return oUserEntity
+			.map(userEntity -> new UserContext(userEntity))
+			.orElseThrow(() -> new UsernameNotFoundException(userId + "를 찾을 수 없습니다."));
 	}
 	
 	private void updateUserBean(UserEntity userEntity)

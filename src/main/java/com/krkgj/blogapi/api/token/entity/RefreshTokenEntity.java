@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "token_info")
 @Builder
 @Nullable
-public class TokenEntity 
+public class RefreshTokenEntity 
 {
     @Id
     @Column(name = "seq")
@@ -44,9 +44,9 @@ public class TokenEntity
     private LocalDateTime createtime;
     
 	// Builder 패턴
-	public static TokenEntity dto2EntityBuilder(TokenDto tokenDto)
+	public static RefreshTokenEntity tokenDto2RefreshEntityBuilder(TokenDto tokenDto)
 	{
-		return new TokenEntityBuilder()
+		return new RefreshTokenEntityBuilder()
 				.seq(tokenDto.getSeq())
 				.refreshToken(tokenDto.getRefreshToken())
 				.createtime(tokenDto.getCreatetime())

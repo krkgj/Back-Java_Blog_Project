@@ -1,8 +1,12 @@
 package com.krkgj.blogapi.api.user.dto;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
 import com.krkgj.blogapi.api.user.entity.UserEntity;
+import com.krkgj.blogapi.framework.auth.Authority;
 
 import lombok.Builder;
 import lombok.Data;
@@ -30,26 +34,25 @@ public class UserDto
      * 유저 패스워드
      */
     private String password;
-
+    
     /**
-     * 유저 휴가
+     * 유저 가입일자
      */
-    private BigDecimal vacation;  
+    private LocalDateTime createtime;
     
     /**
      * 유저 권한
      */
-    private String roles;  
-    
-    
-    
+    @Enumerated(EnumType.STRING)
+    private Authority roles;  
     
 	// Builder 패턴
-	public static UserDto builder(UserEntity userEntity)
+	public static UserDto entity2DtoBuilder(UserEntity userEntity)
 	{
 		return new UserDtoBuilder()
 				.seq(userEntity.getSeq())
 				.id(userEntity.getId())
+				.password(userEntity.getPassword())
 				.roles(userEntity.getRoles())
 				.name(userEntity.getName()).build();
 	}

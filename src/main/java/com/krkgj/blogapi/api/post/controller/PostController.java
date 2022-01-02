@@ -24,7 +24,7 @@ import com.krkgj.blogapi.api.post.service.PostService;
 import com.krkgj.blogapi.framework.utility.Utility;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/post")
 public class PostController 
 {
 	
@@ -35,7 +35,7 @@ public class PostController
 	PostService postService;
 
 	// @RequestParam은 URL의 ? 뒤에 전송되는 키를 value에 받는다. required=false로 필수값 설정을 해제(DEFAULT는 true)
-	@GetMapping(value="/post", produces = {MediaType.APPLICATION_JSON_VALUE })
+	@GetMapping(value="/list", produces = {MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<List<PostDTO>> getAllPostList( @RequestParam(value = "sort-direction", required=false) String sortingDirection,
 															@RequestParam(value = "sort-by", required=false) String sortBy) 
 	{
